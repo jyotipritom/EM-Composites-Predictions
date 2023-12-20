@@ -1,0 +1,25 @@
+clc;
+clear;
+close all;
+a=load('TFeMu1.txt');
+X=[a(:,1),a(:,3)];
+Y1=a(:,2);
+gprMdl = fitrgp(X,Y1,'KernelFunction','squaredexponential','OptimizeHyperparameters','auto','HyperparameterOptimizationOptions',struct('AcquisitionFunctionName','expected-improvement-plus'));
+ypred = predict(gprMdl,X);
+% so I don't write indexes below
+x_data = a(:,1);
+y_data = a(:,3);
+% Getting the 2d grid
+Num_Points = 200;
+X_Lin = linspace(min(x_data),max(x_data),Num_Points);
+%Y_Lin = linspace(min(y_data),max(y_data),Num_Points);
+Y_Lin = linspace(min(y_data),max(y_data)+25,Num_Points);
+[X,Y] = meshgrid(X_Lin,Y_Lin);
+% Interpolating the surface from ypred
+f = scatteredInterpolant(x_data, y_data, ypred);
+Z = f(X,Y);
+surf(X,Y,Z);
+% plotting the observed points
+hold on;
+plot3(x_data,y_data, Y1,'.r','DisplayName','Observations');
+%plot3(x_data,y_data,'.r','DisplayName','Observations');
